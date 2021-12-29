@@ -9,7 +9,6 @@ void* read_(void *arg) {
         read(fd[0],r_buff,BUFFSIZE);
         cout<<"P2 : "<<r_buff<<endl;
     }
-    
 }
 
 void* write_(void *arg) {
