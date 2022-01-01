@@ -12,6 +12,7 @@
 #include <sys/shm.h>
 #include <semaphore.h>
 #include <pthread.h>
+#include <poll.h>
 
 #define BUFFSIZE 1024
 #define RWX 0666
