@@ -18,6 +18,7 @@ void* write_(void *arg) {
     }
 }
 
+
 int main() {
 
     pthread_t reader, writer;
