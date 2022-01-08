@@ -24,9 +24,6 @@ int main(int argc, const char *argv[]) {
     freopen("/dev/tty", "r", stdin);
     freopen("/dev/tty", "w", stdout);
 
-    dup2(fileno(stdin),0);
-    dup2(fileno(stdout),1);
-
     while(1) {
         read(fd[0],buff, BUFFSIZE);
         cout<<"\n----------------- Child --------------------\n\n";
