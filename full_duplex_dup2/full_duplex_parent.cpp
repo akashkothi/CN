@@ -36,6 +36,9 @@ int main() {
     if((pid = fork()) < 0)
         perror("fork error");
     else if(pid > 0) {
+
+        close(fd1[0]);
+        close(fd2[1]);
         
         cout<<"\n----------------- In process P1 --------------------\n\n";
 
@@ -56,7 +59,9 @@ int main() {
         dup2(fd1[0],0);
         dup2(fd2[1],1);
         close(fd1[0]);
-        close(fd2[1]);     
+        close(fd2[1]);
+        close(fd1[1]);
+        close(fd2[0]);     
 
         execl("./full_duplex_child.exe","./full_duplex_child.exe",NULL);
     
