@@ -42,6 +42,9 @@ int main() {
     if((pid = fork()) < 0)
         perror("fork error");
     else if(pid > 0) {
+
+        close(fd1[0]);
+        close(fd2[1]);
         
         while(1) {
             read(fd[0],buff, BUFFSIZE);
@@ -62,7 +65,9 @@ int main() {
         dup2(fd1[0],0);
         dup2(fd2[1],1);
         close(fd1[0]);
-        close(fd2[1]);     
+        close(fd2[1]);
+        close(fd1[1]);
+        close(fd2[0]);      
 
         execl("./p3.exe","./p3.exe",NULL);
     

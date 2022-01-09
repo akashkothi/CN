@@ -37,6 +37,9 @@ int main() {
         perror("fork error");
     else if(pid > 0) {
         
+        close(fd1[0]);
+        close(fd2[1]);
+        
         cout<<"\n----------------- In process P1 --------------------\n\n";
 
         while(1) {    
@@ -56,8 +59,10 @@ int main() {
         dup2(fd1[0],0);
         dup2(fd2[1],1);
         close(fd1[0]);
-        close(fd2[1]);     
-
+        close(fd2[1]);
+        close(fd1[1]);
+        close(fd2[0]);     
+        
         execl("./p2.exe","./p2.exe",NULL);
     
     }
