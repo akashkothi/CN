@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <string.h>
 #include <sys/ipc.h>
 #include <sys/stat.h>
 #include <ctype.h>
@@ -32,12 +33,23 @@ int main() {
         close(fd1[0]);
         close(fd2[1]);
 
+        cout<<"\n----------------- In Parent --------------------\n\n";
+
         while(1) {
             cout<<"Parent writing to child : ";
             cin.getline(buff,BUFFSIZE);
             write(fd1[1],buff,BUFFSIZE);
+            if(strlen(buff) == 0) {
+                cout<<"Parent terminated ..."<<endl;
+                exit(0);
+            }
             read(fd2[0],buff,BUFFSIZE);
-            cout<<"Parent reading from child : "<<buff<<endl;
+            cout<<"\n----------------- In Parent --------------------\n\n";
+            if(strlen(buff) == 0) {
+                cout<<"Parent terminated ..."<<endl;
+                exit(0);
+            }
+            cout<<"Message from child : "<<buff<<endl;
         }
 
     }
@@ -48,10 +60,19 @@ int main() {
 
         while(1) {
             read(fd1[0],buff,BUFFSIZE);
-            cout<<"Child reading from parent : "<<buff<<endl;
+            cout<<"\n----------------- In Child ---------------------\n\n";
+            if(strlen(buff) == 0) {
+                cout<<"Child terminated ..."<<endl;
+                exit(0);
+            }
+            cout<<"Message from parent : "<<buff<<endl;
             cout<<"Child writing to parent : ";
             cin.getline(buff,BUFFSIZE);
             write(fd2[1],buff,BUFFSIZE);
+            if(strlen(buff) == 0) {
+                cout<<"Child terminated ..."<<endl;
+                exit(0);
+            }
         }
 
     }

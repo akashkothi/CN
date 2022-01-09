@@ -58,7 +58,7 @@ int main() {
         close(fd1[0]);
         close(fd2[1]);     
 
-        execl("./full_duplex_child.exe","./full_duplex_child.exe",NULL);
+        execl("./p2.exe","./p2.exe",NULL);
     
     }
 

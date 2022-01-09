@@ -17,16 +17,22 @@ using namespace std;
 char buff[BUFFSIZE];
 
 void check() {
-    if(strlen(buff) == 0) {
-        cout<<"P1 terminated ..."<<endl;
+    if(strlen(buff) == 0){
+        cout<<"P2 terminated ..."<<endl;
         exit(0);
     }
 }
 
 int main() {
-
+    
+    int fd[2], fd1[2], fd2[2];
     pid_t pid;
-    int fd1[2],fd2[2];
+
+    fd[0] = dup(STDIN_FILENO);
+    fd[1] = dup(STDOUT_FILENO);
+    
+    freopen("/dev/tty", "r", stdin);
+    freopen("/dev/tty", "w", stdout);
     
     if(pipe(fd1) < 0)
         perror("pipe error");
@@ -37,17 +43,17 @@ int main() {
         perror("fork error");
     else if(pid > 0) {
         
-        cout<<"\n----------------- In process P1 --------------------\n\n";
-
-        while(1) {    
-            cout<<"P1 writing to P2 : ";
-            cin.getline(buff,BUFFSIZE);
+        while(1) {
+            read(fd[0],buff, BUFFSIZE);
+            cout<<"\n----------------- In process P2 --------------------\n\n";
+            cout<<"Sending message to P3 ..."<<endl;
             write(fd1[1],buff,BUFFSIZE);
             check();
             read(fd2[0],buff,BUFFSIZE);
-            cout<<"\n----------------- In process P1 --------------------\n\n";
+            cout<<"\n----------------- In process P2 --------------------\n\n";
+            cout<<"Sending message to P1 ..."<<endl;
+            write(fd[1],buff, BUFFSIZE);
             check();
-            cout<<"Message received from P2 : "<<buff<<endl;
         }
 
     }
@@ -58,7 +64,7 @@ int main() {
         close(fd1[0]);
         close(fd2[1]);     
 
-        execl("./full_duplex_child.exe","./full_duplex_child.exe",NULL);
+        execl("./p3.exe","./p3.exe",NULL);
     
     }
 
