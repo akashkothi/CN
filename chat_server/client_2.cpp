@@ -2,34 +2,35 @@
 
 int fd[2];
 char r_buff[BUFFSIZE];
-string buff;
+string w_buff;
 
 void* read_(void *arg) {
     while(1) {
-        read(fd[0],r_buff, BUFFSIZE);
+        read(fd[0],r_buff,BUFFSIZE);
         cout<<r_buff<<endl;
     }
 }
 
 void* write_(void *arg) {
     while(1) {
-        getline(cin,buff);
-        buff.push_back('\n');
-        write(fd[1],buff.c_str(),buff.size());        
+        getline(cin,w_buff);
+        w_buff = "@C2 : " + w_buff + '\0';
+        write(fd[1],w_buff.c_str(),w_buff.size());      
     }
 }
-
 
 int main() {
 
     pthread_t reader, writer;
 
-    mkfifo("./fifo",RWX);
-    fd[0] = open("./fifo",O_RDWR);
-
-    FILE *fp = popen("./p2.exe","w");
-    fd[1] = fileno(fp);
+    mkfifo("server_fifo",RWX);
+    mkfifo("fifo_2",RWX);
     
+    fd[1] = open("server_fifo",W);
+    fd[0] = open("fifo_2",R);
+
+    cout<<"Hello I am P2"<<endl;
+
     pthread_create(&reader,NULL,read_,NULL);
     pthread_create(&writer,NULL,write_,NULL);
     pthread_join(reader,NULL);
