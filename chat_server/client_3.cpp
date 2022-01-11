@@ -1,4 +1,23 @@
-#include "../cn.h"
+#include <iostream>
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <pthread.h>
+#include <ctype.h>
+
+#define BUFFSIZE 1024
+#define RWX 0666
+#define R O_RDONLY
+#define W O_WRONLY
+#define RW O_RDWR
+
+using namespace std;
 
 int fd[2];
 char r_buff[BUFFSIZE];
@@ -28,8 +47,6 @@ int main() {
     
     fd[1] = open("server_fifo",W);
     fd[0] = open("fifo_3",R);
-
-    cout<<"Hello I am P3"<<endl;
 
     pthread_create(&reader,NULL,read_,NULL);
     pthread_create(&writer,NULL,write_,NULL);
