@@ -10,11 +10,19 @@ void handler(int signo) {
 
 char buff[BUFFSIZE];
 
+<<<<<<< HEAD
 int main(){
+=======
+int main() {
+>>>>>>> c09b07a (signal_fifo)
     
     int fd, pid;
     string pid_;
 
+<<<<<<< HEAD
+=======
+    signal(SIGUSR2,handler);
+>>>>>>> c09b07a (signal_fifo)
     mkfifo("fifo",RWX);
     fd = open("fifo",O_RDWR);
     pid = getpid();
@@ -29,6 +37,7 @@ int main(){
         write(fd,pid_.c_str(),pid_.size());
 
     cout<<"Process Id received from fifo : "<<buff<<endl;
+<<<<<<< HEAD
 
     signal(SIGUSR2,handler);
     sleep(1);
@@ -37,4 +46,14 @@ int main(){
     
     while(s);
 
+=======
+    
+    while(s);
+
+    if(kill(atoi(buff),SIGUSR1) < 0)
+        perror("kill error"); 
+
+    unlink("fifo");
+
+>>>>>>> c09b07a (signal_fifo)
 }
