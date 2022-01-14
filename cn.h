@@ -17,7 +17,6 @@
 #include <ctype.h>
 #include <signal.h>
 
-
 #define BUFFSIZE 1024
 #define RWX 0666
 #define R O_RDONLY
