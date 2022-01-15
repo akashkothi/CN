@@ -19,5 +19,4 @@ int main() {
     cout<<"I am signalling semaphore signal of S23 ..."<<endl;
     
     sem_post(s23);
-    
 }

@@ -22,5 +22,4 @@ int main() {
     sem_wait(s41);
     
     cout<<"I got signal from process P4 ..."<<endl;
-
 }
