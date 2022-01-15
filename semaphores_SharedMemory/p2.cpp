@@ -1,7 +1,7 @@
 #include "../cn.h"
 
 int main() {
-
+    char ch;
     sem_t *s1 = sem_open("s1",0);
     sem_t *s2 = sem_open("s2",0);
     
@@ -10,15 +10,18 @@ int main() {
     int shmid_x = shmget(key_x,BUFFSIZE,RWX|IPC_CREAT);
     int shmid_y = shmget(key_y,BUFFSIZE,RWX|IPC_CREAT);
     
-    char *x = (char*) shmat(shmid_x,0,0);
-    char *y = (char*) shmat(shmid_y,0,0);
+    int *x = (int*) shmat(shmid_x,0,0);
+    int *y = (int*) shmat(shmid_y,0,0);
 
-    for(int i = 1; i <= 5; i++) {
+    while(1) {
+        cout<<"I am waiting for signal S1 ..."<<endl;
         sem_wait(s1);
-        cout<<"P2 : Value of x read from shared memory : "<<x<<endl;
-        strcpy(y,x);
-        strcat(y,"B");
-        cout<<"P2 : value of y written to shared memory : "<<y<<endl;
+        cout<<"I am reading from shm X ..."<<endl;
+        cout<<"Value of x read from shared memory X : "<<*x<<endl;
+        *y = *x + 1;
+        cout<<"value of y written to shared memory Y : "<<*y<<endl;
+        cout<<"Enter any char to signal S2 : ";
+        cin>>ch;
         sem_post(s2);
     }
 
