@@ -11,6 +11,7 @@
 #include <sys/msg.h>
 #include <sys/stat.h>
 #include <sys/shm.h>
+#include <sys/ioctl.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <poll.h>
