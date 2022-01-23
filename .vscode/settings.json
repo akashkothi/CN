@@ -13,5 +13,6 @@
         "string_view": "cpp",
         "system_error": "cpp",
         "type_traits": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
 }
