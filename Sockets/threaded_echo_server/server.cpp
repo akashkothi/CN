@@ -19,8 +19,8 @@ void* capitalize_thread(void *fd) {
 int main() {
 
     int sfd, nsfd[3];
-    socklen_t len;
     struct sockaddr_in server_addr,client_addr;
+    socklen_t len = sizeof(client_addr);
     pthread_t thread[3];
 
     init_server_address(&server_addr,LOCAL_HOST,PORT);
