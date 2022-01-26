@@ -44,7 +44,7 @@ void error(const char* err) {
     exit(EXIT_FAILURE);
 }
 
-void capitalize(char *buff){
+void capitalize(char *buff) {
     int n = strlen(buff);
     for(int i = 0; i < n; i++)
         buff[i] = toupper(buff[i]);
