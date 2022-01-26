@@ -7,14 +7,10 @@ int main() {
     int sfd;
     struct sockaddr_in server_addr;
 
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(PORT);
+    init_server_address(&server_addr,LOCAL_HOST,PORT);
     
     if((sfd = socket(AF_INET,SOCK_STREAM,0)) < 0)
         perror("socket error");
-
-    if(inet_pton(AF_INET,LOCAL_HOST,&server_addr.sin_addr) < 1)
-        perror("inet_pton error"); 
 
     if(connect(sfd,(struct sockaddr *)&server_addr,sizeof(server_addr)) < 0)
         perror("connect error");

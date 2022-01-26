@@ -38,3 +38,16 @@ struct mymesg {
 } msg;
 
 using namespace std;
+
+void error(const char* err) {
+    perror(err);
+    exit(EXIT_FAILURE);
+}
+
+void init_server_address(struct sockaddr_in* server_addr, const char* ip_addr, int port) {
+    server_addr->sin_family = AF_INET;
+    server_addr->sin_port = htons(port);
+    if(inet_pton(AF_INET,ip_addr,&server_addr->sin_addr) < 1)
+        error("inet_pton error");
+    printf("\nInitialized server address ...\n");
+}

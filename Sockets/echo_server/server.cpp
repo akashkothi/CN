@@ -29,19 +29,11 @@ int main() {
         if(fork() == 0) {
 
             close(sfd);
+            dup2(nsfd,STDIN_FILENO);
+            dup2(nsfd,STDOUT_FILENO);
+            close(nsfd);
             
-            if(send(nsfd,"Hello I am server",BUFFSIZE,0) < 0)
-                error("send error");
-
-            cout<<"P"<<i+1<<" : message sent ..."<<endl;
-
-            if(recv(nsfd,buff,BUFFSIZE,0) < 0)
-                error("recv error");
-
-            cout<<"P"<<i+1<<" : message received ..."<<endl;
-            cout<<buff<<endl;
-
-            exit(EXIT_SUCCESS);
+            execl("./capitalize.exe","./capitalize.exe",NULL);
 
         }
         
