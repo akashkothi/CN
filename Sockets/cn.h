@@ -44,6 +44,12 @@ void error(const char* err) {
     exit(EXIT_FAILURE);
 }
 
+void capitalize(char *buff){
+    int n = strlen(buff);
+    for(int i = 0; i < n; i++)
+        buff[i] = toupper(buff[i]);
+}
+
 void init_server_address(struct sockaddr_in* server_addr, const char* ip_addr, int port) {
     server_addr->sin_family = AF_INET;
     server_addr->sin_port = htons(port);
