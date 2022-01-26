@@ -5,8 +5,8 @@ char buff[BUFFSIZE];
 int main() {
 
     int sfd, nsfd;
-    socklen_t len;
     struct sockaddr_in server_addr,client_addr;
+    socklen_t len = sizeof(client_addr);
 
     init_server_address(&server_addr,LOCAL_HOST,PORT);
 
