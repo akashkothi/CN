@@ -6,8 +6,8 @@ int main() {
 
     pid_t pid;
     int sfd, nsfd;
-    socklen_t len;
     struct sockaddr_in server_addr,client_addr;
+    socklen_t len = sizeof(client_addr);
 
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(PORT);
