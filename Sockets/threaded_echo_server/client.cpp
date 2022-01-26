@@ -9,8 +9,8 @@ int main(int argc, const char* argv[]) {
 
     if(argc != 2) {
         printf("invalid no.of arguments ...\n");
-        printf("1st argument -> ./client.exe ...\n");
-        printf("2nd argument -> client_id ...\n");
+        printf("1st argument -> ./client.exe \n");
+        printf("2nd argument -> client number\n");
         exit(EXIT_FAILURE);
     }
 
