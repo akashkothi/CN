@@ -2,7 +2,17 @@
 
 char buff[BUFFSIZE];
 
-int main() {
+string client = "Hello I am client-";
+
+
+int main(int argc, const char* argv[]) {
+
+    if(argc != 2) {
+        printf("invalid no.of arguments ...\n");
+        printf("1st argument -> ./client.exe ...\n");
+        printf("2nd argument -> client_id ...\n");
+        exit(EXIT_FAILURE);
+    }
 
     int sfd;
     struct sockaddr_in server_addr;
@@ -17,7 +27,9 @@ int main() {
 
     cout<<"connection established ...\n";  
 
-    if(send(sfd,"Hello I am client2",BUFFSIZE,0) < 0)
+    client = client + argv[1];
+
+    if(send(sfd,client.c_str(),BUFFSIZE,0) < 0)
         error("send error");
 
     cout<<"message sent ...\n";
