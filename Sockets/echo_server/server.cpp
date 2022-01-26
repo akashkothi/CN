@@ -36,7 +36,6 @@ int main() {
             execl("./capitalize.exe","./capitalize.exe",NULL);
 
         }
-        
     }
 
     for(int i = 0; i < 3; i++)

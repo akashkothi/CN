@@ -15,5 +15,4 @@ int main() {
     cout<<buff<<endl;
     
     exit(EXIT_SUCCESS);
-
 }
