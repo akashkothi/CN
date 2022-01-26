@@ -1,7 +1,5 @@
 #include "../cn.h"
 
-char buff[BUFFSIZE];
-
 int main() {
 
     int sfd, nsfd;
@@ -27,7 +25,7 @@ int main() {
         cout<<"\nconnection established ..."<<endl;
 
         if(fork() == 0) {
-
+            
             close(sfd);
             dup2(nsfd,STDIN_FILENO);
             dup2(nsfd,STDOUT_FILENO);
