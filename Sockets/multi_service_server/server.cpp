@@ -6,7 +6,7 @@ int main() {
     struct sockaddr_in server_addr,client_addr;
     socklen_t len = sizeof(client_addr);
 
-    init_server_address(&server_addr,LOCAL_HOST,PORT);
+    init_socket_address(&server_addr,LOCAL_HOST,PORT);
 
     if((sfd = socket(AF_INET,SOCK_STREAM,0)) < 0)
         error("socket error");
