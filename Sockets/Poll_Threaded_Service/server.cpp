@@ -69,7 +69,7 @@ int main() {
 
     for(int i = 0;i < 3; i++) {
         
-        init_server_address(&server_addr[i],LOCAL_HOST,ports[i]);
+        init_socket_address(&server_addr[i],LOCAL_HOST,ports[i]);
 
         if((sfd[i].fd = socket(AF_INET,SOCK_STREAM,0)) < 0)
             error("socket error");

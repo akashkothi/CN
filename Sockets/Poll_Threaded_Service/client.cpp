@@ -18,7 +18,7 @@ int main(int argc, const char* argv[]) {
     int sfd, i = atoi(argv[1]);
     struct sockaddr_in server_addr;
 
-    init_server_address(&server_addr,LOCAL_HOST,ports[i-1]);
+    init_socket_address(&server_addr,LOCAL_HOST,ports[i-1]);
     
     if((sfd = socket(AF_INET,SOCK_STREAM,0)) < 0)
         error("socket error");
