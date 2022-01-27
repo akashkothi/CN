@@ -10,7 +10,7 @@ int main(int argc, const char* argv[]) {
     socklen_t len = sizeof(server_addr);
     string buff;
 
-    init_server_address(&server_addr,LOCAL_HOST,PORT);
+    init_socket_address(&server_addr,LOCAL_HOST,PORT);
     
     if((sfd = socket(AF_INET,SOCK_STREAM,0)) < 0)
         error("socket error");

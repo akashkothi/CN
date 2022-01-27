@@ -56,10 +56,10 @@ void de_capitalize(char *buff) {
         buff[i] = tolower(buff[i]);
 }
 
-void init_server_address(struct sockaddr_in* server_addr, const char* ip_addr, int port) {
-    server_addr->sin_family = AF_INET;
-    server_addr->sin_port = htons(port);
-    if(inet_pton(AF_INET,ip_addr,&server_addr->sin_addr) < 1)
+void init_socket_address(struct sockaddr_in* socket_addr, const char* ip_addr, int port) {
+    socket_addr->sin_family = AF_INET;
+    socket_addr->sin_port = htons(port);
+    if(inet_pton(AF_INET,ip_addr,&socket_addr->sin_addr) < 1)
         error("inet_pton error");
-    printf("\nInitialized server address ...\n");
+    printf("\nInitialized socket address ...\n");
 }
