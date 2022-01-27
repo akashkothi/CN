@@ -23,7 +23,7 @@ int main() {
     socklen_t len = sizeof(client_addr);
     pthread_t thread[3];
 
-    init_server_address(&server_addr,LOCAL_HOST,PORT);
+    init_socket_address(&server_addr,LOCAL_HOST,PORT);
 
     if((sfd = socket(AF_INET,SOCK_STREAM,0)) < 0)
         error("socket error");
