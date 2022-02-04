@@ -20,6 +20,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/select.h>
 
 #define BUFFSIZE 1024
 #define RWX 0666
