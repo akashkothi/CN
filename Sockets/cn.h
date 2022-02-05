@@ -64,3 +64,17 @@ void init_socket_address(struct sockaddr_in* socket_addr, const char* ip_addr, i
         error("inet_pton error");
     printf("\nInitialized socket address ...\n");
 }
+
+pid_t getpid_by_name(string name) {
+    
+    int fd;
+    pid_t pid;
+    char buff[BUFFSIZE] = {'\0'};
+    
+    name = "pidof " + name;
+    fd = fileno(popen(name.c_str(),"r"));
+    read(fd,buff,BUFFSIZE);
+    pid = atoi(buff);
+    
+    return pid;
+}
