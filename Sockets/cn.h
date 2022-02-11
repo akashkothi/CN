@@ -35,6 +35,7 @@
 #define ADDRESS "mysocket"
 
 int ports[3] = {8081,8082,8083};
+const char* name[3] = {"mysocket1","mysocket2","mysocket3"};
 
 struct mymesg {
     long type;
@@ -65,7 +66,7 @@ void init_socket_address(struct sockaddr_in* socket_addr, const char* ip_addr, i
     socket_addr->sin_port = htons(port);
     if(inet_pton(AF_INET,ip_addr,&socket_addr->sin_addr) < 1)
         error("inet_pton error");
-    printf("\nInitialized socket address ...\n");
+    // printf("\nInitialized socket address ...\n");
 }
 
 pid_t getpid_by_name(string name) {
