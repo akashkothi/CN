@@ -14,19 +14,27 @@ int main(int argc, const char* argv[]) {
     }
 
     int sfd, port = atoi(argv[1]);
-    struct sockaddr_in server_addr;
+    struct sockaddr_in server_addr,client_addr;
+    socklen_t len = sizeof(client_addr);
 
     init_socket_address(&server_addr,LOCAL_HOST,port);
     
     if((sfd = socket(AF_INET,SOCK_STREAM,0)) < 0)
         error("socket error");
 
+    cout<<"Waiting to connect ..."<<endl;
+
     if(connect(sfd,(struct sockaddr *)&server_addr,sizeof(server_addr)) < 0)
         error("connect error");
+    
+    getsockname(sfd,(struct sockaddr*)&client_addr,&len);
+    
+    cout<<"My address "<<inet_ntoa(client_addr.sin_addr)<<" "<<client_addr.sin_port<<endl;
 
     cout<<"connection established with "<<inet_ntoa(server_addr.sin_addr)<<" "<<server_addr.sin_port<<endl; 
 
-    close(sfd);
+    
+    // close(sfd);
     // while(1);
     
 }
