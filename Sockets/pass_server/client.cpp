@@ -33,8 +33,13 @@ int main(int argc, const char* argv[]) {
 
     cout<<"connection established with "<<inet_ntoa(server_addr.sin_addr)<<" "<<server_addr.sin_port<<endl; 
 
-    
-    // close(sfd);
-    // while(1);
+    while(1) {
+        string input;
+        cout<<"Enter input : ";
+        getline(cin,input);
+        if(send(sfd,input.c_str(),input.size(),0) < 0)
+            error("send error");
+        cout<<"message sent ..."<<endl;
+    }
     
 }
