@@ -24,14 +24,14 @@
 #include <sys/select.h>
 #include <sys/un.h>
 
-#define BUFFSIZE 1
+#define BUFFSIZE 1024
 #define RWX 0666
 #define R O_RDONLY
 #define W O_WRONLY
 #define RW O_RDWR
 #define PORT 8080
 #define BACKLOG 10
-#define LOCAL_HOST "192.168.0.134"
+#define LOCAL_HOST "127.0.0.1"
 #define ADDRESS "mysocket"
 
 int ports[3] = {8081,8082,8083};
