@@ -78,13 +78,11 @@ int main() {
                 nsfd[c2].events = POLLIN;
                 nsfd[c2++].fd = nsfdj;
                 
-                if((ssfdj = socket(AF_INET, SOCK_STREAM,0) < 0))
+                if((ssfdj = socket(AF_INET, SOCK_STREAM,0)) < 0)
                     error("socket error");
                 
                 if(connect(ssfdj,(struct sockaddr*)&sfdi_Si_addr[sfd[i].fd],len) < 0)
                     error("connect error");
-                
-                cout<<"connection established ..."<<endl;
 
                 ssfd[c3].events = POLLIN;
                 ssfd[c3++].fd = ssfdj;

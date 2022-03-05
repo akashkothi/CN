@@ -6,7 +6,6 @@ int main(int argc, const char* argv[]) {
         printf("invalid no.of arguments ...\n");
         printf("1st argument -> ./client.exe \n");
         printf("2nd argument -> port number\n");
-        printf("8081 8082 8083\n");
         exit(EXIT_FAILURE);
     }
 
