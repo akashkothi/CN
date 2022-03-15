@@ -1,0 +1,1 @@
+/home/akash/Semester/CN/ACE/ACE_wrappers/bin/mwc.pl -type gnuace -exclude TAO/TAO_ACE.mwc -workers 12 -recurse -hierarchy -relative ACE_ROOT=/home/akash/Semester/CN/ACE/ACE_wrappers -relative TAO_ROOT=/home/akash/Semester/CN/ACE/ACE_wrappers/TAO

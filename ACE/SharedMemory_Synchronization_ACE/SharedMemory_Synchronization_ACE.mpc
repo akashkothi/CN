@@ -1,0 +1,13 @@
+project(*P1) : aceexe, avoids_ace_for_tao {
+  exename = P1
+  Source_Files {
+    P1.cpp
+  }
+}
+
+project(*P2) : aceexe, avoids_ace_for_tao {
+  exename = P2
+  Source_Files {
+    P2.cpp
+  }
+}

@@ -12,6 +12,7 @@
 #include <signal.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <time.h>
 
 #include <sys/wait.h>
 #include <sys/types.h>

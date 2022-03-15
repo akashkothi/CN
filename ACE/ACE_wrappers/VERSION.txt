@@ -1,0 +1,6 @@
+This is ACE version 7.0.6, released Thu Jan 20 09:26:53 CET 2022
+
+If you have any problems with or questions about ACE, please open
+a issue or discussion on the ACE_TAO github project at
+https://github.com/DOCGroup/ACE_TAO using the form found in the
+file PROBLEM-REPORT-FORM.

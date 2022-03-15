@@ -1,0 +1,8 @@
+// -*- MPC -*-
+project {
+  specific(nmake) {
+    subsystem = windows
+  } else {
+    subsystem = Windows
+  }
+}

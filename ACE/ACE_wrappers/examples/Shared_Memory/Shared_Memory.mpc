@@ -1,0 +1,7 @@
+// -*- MPC -*-
+project(*SHM) : aceexe, avoids_ace_for_tao {
+  exename = testsv
+  Source_Files {
+    test_SV.cpp
+  }
+}

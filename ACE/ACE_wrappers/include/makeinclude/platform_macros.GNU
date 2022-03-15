@@ -1,0 +1,1 @@
+../../examples/APG/Active_Objects/platform_macros.GNU

@@ -1,0 +1,22 @@
+// -*- MPC -*-
+feature(zlib) {
+  expand(ZLIB_INCDIR) {
+    $ZLIB_INCDIR
+    $(ZLIB_ROOT)/include
+  }
+  expand(ZLIB_LIBDIR) {
+    $ZLIB_LIBDIR
+    $(ZLIB_ROOT)/lib
+  }
+
+  includes += "$(ZLIB_INCDIR)"
+  libpaths += "$(ZLIB_LIBDIR)"
+  macros   += ZLIB
+
+  specific(prop:windows) {
+    Debug::lit_libs += zlibd
+    Release::lit_libs += zlib
+  } else {
+    lit_libs += z
+  }
+}
