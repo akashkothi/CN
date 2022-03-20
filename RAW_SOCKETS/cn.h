@@ -1,4 +1,6 @@
+#include <stdint.h>
 #include <bits/stdc++.h>
+#include <time.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -10,10 +12,17 @@
 #include <poll.h>
 #include <ctype.h>
 #include <signal.h>
+#include <inttypes.h>
+
+#include <net/if.h>
+#include <linux/if_packet.h>
+#include <net/ethernet.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <arpa/inet.h>
-#include <time.h>
+#include <linux/if_ether.h>
+#include <linux/if_arp.h>
+
 
 #include <sys/wait.h>
 #include <sys/types.h>
