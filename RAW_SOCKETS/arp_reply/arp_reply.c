@@ -1,4 +1,3 @@
- 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>           // close()
@@ -43,7 +42,13 @@ struct _arp_hdr {
 char *allocate_strmem (int);
 uint8_t *allocate_ustrmem (int);
  
-int main (int argc, char **argv) {
+int main (int argc, char* argv[]) {
+
+  if(argc != 2) {
+    printf("Target IP should be given as 2nd argument\n");
+    exit(EXIT_FAILURE);
+  }
+
   int i, status, frame_length, sd, bytes;
   char *interface, *target, *src_ip;
   arp_hdr arphdr;
@@ -108,7 +113,7 @@ int main (int argc, char **argv) {
   strcpy (src_ip, "192.168.137.1");
  
   // Destination URL or IPv4 address (must be a link-local node): you need to fill this out
-  strcpy (target, "192.168.137.88"); // this is some guy from my LAN, idk who
+  strcpy (target, argv[1]); // this is some guy from my LAN, idk who
  
   // Fill out hints for getaddrinfo().
   memset (&hints, 0, sizeof (struct addrinfo));
