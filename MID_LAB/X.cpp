@@ -6,7 +6,7 @@ int main(int argc, char* argv[]) {
 
     strcpy(location,argv[1]);
 
-    cout<<"Pickup location : "<<location<<endl;
+    cout<<"Pick up location(taxi) : "<<location<<endl;
 
     int usfd, nsfd;
     struct sockaddr_un location_addr;
@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
     usfd = uds_socket(SOCK_STREAM,location,location_addr);
 
     if(connect(usfd,(struct sockaddr *)&location_addr,location_len) < 0)
-        error("connect error");
+        error("connect error in taxi");
     
     // cout<<"UDS connected ..."<<endl;
 

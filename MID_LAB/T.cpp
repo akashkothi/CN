@@ -141,6 +141,8 @@ int main() {
                         if((agent = get_agent(service)) < 0)
                             error("get_agent error");
 
+                        cout<<"Agent number : "<<agent<<endl;
+
                         msg.type = agent;
                         strcpy(msg.text,location);
 
@@ -151,6 +153,8 @@ int main() {
 
                         if((idx = get_location(location)) < 0)
                             error("get_location error");
+                        
+                        cout<<"Location idx : "<<idx<<endl;
                         
                         if((nusfd = accept(usfd[idx],(struct sockaddr*)&taxi_addr,&taxi_len)) < 0)
                             error("UDS accept error");

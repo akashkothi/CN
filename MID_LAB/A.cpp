@@ -10,6 +10,8 @@ int main(int argc, char* argv[]) {
     key_t msqkey;
     int msqid, agent_no = atoi(argv[1]);
 
+    cout<<"Agent Number : "<<agent_no<<endl;
+
     if((msqkey = ftok("./msg_queue",89)) < 0)
         error("ftok error");
     
