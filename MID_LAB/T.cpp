@@ -8,16 +8,16 @@ const char* locations[4] = {"l1","l2","l3","l4"};
 const char* info_places = "Available Tourist Places : t1 t2 t3 t4";
 const char* info_location = "Pickup locations : l1 l2 l3 l4";
 
-void* broadcast(void* arg) {
-    int rsfd = *(int *)arg;
+// void* broadcast(void* arg) {
+//     int rsfd = *(int *)arg;
 
-    while(1) {
-
-
+//     while(1) {
 
 
-    }
-}
+
+
+//     }
+// }
 
 
 int get_agent(string request) {
@@ -58,12 +58,16 @@ int main() {
     struct sockaddr_un location_addr[4], taxi_addr;
     
 
-    if((msqkey = ftok("msg_queue",50)) < 0)
+
+    if((msqkey = ftok("./msg_queue",89)) < 0)
         error("ftok error");
     
     if((msqid = msgget(msqkey,RWX|IPC_CREAT)) < 0)
-        perror("msgget error");
+        error("msgget error");
 
+
+
+    
     init_socket_address(&server_addr,LOCAL_HOST,PORT);
 
     if((sfd = socket(AF_INET,SOCK_STREAM,0)) < 0)
@@ -75,13 +79,17 @@ int main() {
     if(listen(sfd,BACKLOG) < 0) 
         error("listen error");
     
+    psfd[0].fd = sfd;
+    psfd[0].events = POLLIN;
+    
+
+
     if((rsfd = socket(AF_INET,SOCK_RAW,8)) < 0)
 	    error("socket error");
     
     init_socket_address(&my_addr,LOCAL_HOST);
 
-    psfd[0].fd = sfd;
-    psfd[0].events = POLLIN;
+
 
     for(int i = 0; i < 4; i++) {
         
@@ -120,11 +128,13 @@ int main() {
                         char service[BUFFSIZE] = {'\0'};
                         char location[BUFFSIZE] = {'\0'};
 
-                        if(recv(psfd[i].fd,service,BUFFSIZE,0) < 0)
+                        if(recv(psfd[i].fd,service,2,0) < 0)
                             error("recv error");
+                        cout<<"Tourist place : "<<service<<endl;
                         
-                        if(recv(psfd[i].fd,location,BUFFSIZE,0) < 0)
+                        if(recv(psfd[i].fd,location,2,0) < 0)
                             error("recv error");
+                        cout<<"Pickup location : "<<location<<endl;
                         
                         string service_(service);
 
