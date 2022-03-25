@@ -1,10 +1,15 @@
 #include "./cn.h"
 
+int agent_pid;
+
+
 int main(int argc, char* argv[]) {
 
     char location[BUFFSIZE] = {'\0'};
 
     strcpy(location,argv[1]);
+
+    agent_pid = atoi(argv[2]);
 
     cout<<"Pick up location(taxi) : "<<location<<endl;
 
@@ -24,6 +29,22 @@ int main(int argc, char* argv[]) {
     
     cout<<"nsfd received from tourism server ..."<<endl;
 
-    while(1);
+    while(1) {
+
+        int bytes;
+        char buff[BUFFSIZE] = {'\0'};
+            
+        if((bytes = recv(nsfd,buff,BUFFSIZE,0)) < 0)
+            error("recv error");
+
+        else if(bytes == 0) {
+
+            cout<<"Vehicle breakdown occured(taxi) ..."<<endl;
+            kill(agent_pid,SIGUSR1);
+            exit(EXIT_FAILURE);
+        }
+        else cout<<buff<<endl; 
+
+    }
 
 }

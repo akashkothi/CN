@@ -25,6 +25,24 @@ int main() {
     
     cout<<"Connected to tourism server ..."<<endl;
 
+    if(recvfrom(rsfd,buff,BUFFSIZE,0,(struct sockaddr*)&my_addr,&len) < 0)
+	    error("recvfrom error");
+ 
+    ip = (struct iphdr*)buff;
+    
+	cout<<endl<<buff+(ip->ihl)*4<<endl;
+
+    memset(buff,0,BUFFSIZE);
+
+    if(recvfrom(rsfd,buff,BUFFSIZE,0,(struct sockaddr*)&my_addr,&len) < 0)
+	    error("recvfrom error");
+ 
+    ip = (struct iphdr*)buff;
+    
+	cout<<buff+(ip->ihl)*4<<endl<<endl;
+
+    memset(buff,0,BUFFSIZE);
+
     if(recv(sfd,buff,BUFFSIZE,0) < 0)
         cout<<"recv error"<<endl;
     
@@ -34,33 +52,26 @@ int main() {
 
     cout<<"Enter the Tourist place : ";
     cin>>place;
-    cout<<"Enter the pick up location : ";
-    cin>>location;
-
+    place.push_back('\0');
+    
     if(send(sfd,place.c_str(),place.size(),0) < 0)
         error("send error");
     
+    cout<<"Enter the pick up location : ";
+    cin>>location;
+    location.push_back('\0');
+    
     if(send(sfd,location.c_str(),location.size(),0) < 0)
         error("send error");
-    
-    memset(buff,0,BUFFSIZE);
 
-    if(recvfrom(rsfd,buff,BUFFSIZE,0,(struct sockaddr*)&my_addr,&len) < 0)
-	    error("recvfrom error");
- 
-    ip = (struct iphdr*)buff;
-    
-	cout<<buff+(ip->ihl)*4<<endl;
+    while(1) {
 
-    memset(buff,0,BUFFSIZE);
+        string input;
+        getline(cin,input); 
 
-    if(recvfrom(rsfd,buff,BUFFSIZE,0,(struct sockaddr*)&my_addr,&len) < 0)
-	    error("recvfrom error");
- 
-    ip = (struct iphdr*)buff;
-    
-	cout<<buff+(ip->ihl)*4<<endl;
-    
-    while(1);
+        if(send(sfd,input.c_str(),BUFFSIZE,0) < 0)
+            error("send error");
+
+    }
 
 }

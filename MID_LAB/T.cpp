@@ -5,19 +5,9 @@ string A2[2] = {"t2","t5"};
 
 const char* locations[4] = {"l1","l2","l3","l4"};
 
-const char* info_places = "Available Tourist Places : t1 t2 t3 t4";
-const char* info_location = "Pickup locations : l1 l2 l3 l4";
+const char* info_places = "Available Tourist Places : t1 t2 t3 t5 t7";
+const char* info_location = "Available Pickup locations : l1 l2 l3 l4";
 
-// void* broadcast(void* arg) {
-//     int rsfd = *(int *)arg;
-
-//     while(1) {
-
-
-
-
-//     }
-// }
 
 
 int get_agent(string request) {
@@ -73,6 +63,9 @@ int main() {
     if((sfd = socket(AF_INET,SOCK_STREAM,0)) < 0)
         error("socket error");
     
+    int opt = 1;
+    setsockopt(sfd,SOL_SOCKET,SO_REUSEADDR|SO_REUSEPORT,&opt,sizeof(socklen_t));
+
     if(bind(sfd,(struct sockaddr *)&server_addr,sizeof(server_addr)) < 0)
         error("bind error");
 
@@ -92,13 +85,16 @@ int main() {
 
 
     for(int i = 0; i < 4; i++) {
-        
+
         unlink(locations[i]);
 
         usfd[i] = uds_socket(SOCK_STREAM,locations[i],location_addr[i]);
     
         if(bind(usfd[i],(struct sockaddr*)&location_addr[i],len) < 0)
-            error("bind error");
+            error("bind error UDS");
+        
+        if(listen(usfd[i],BACKLOG) < 0)
+            error("listen error");
 
     }
 
@@ -117,9 +113,15 @@ int main() {
                         psfd[count].fd = nsfd;
                         psfd[count++].events = POLLIN;
 
-                        if(send(nsfd,"Can you please provide the details of location and type of taxi service needed ?",BUFFSIZE,0) < 0)
+                        if(sendto(rsfd,info_places,BUFFSIZE,0,(struct sockaddr*)&my_addr,len) < 0)
+                            error("sendto error");
+            
+                        if(sendto(rsfd,info_location,BUFFSIZE,0,(struct sockaddr*)&my_addr,len) < 0)
+                            error("sendto error");
+
+                        if(send(nsfd,"Can you please provide the details of Tourist Place and pick up location ?",BUFFSIZE,0) < 0)
                             error("send error");
-                    
+                        
                     }
                     else {
 
@@ -128,20 +130,20 @@ int main() {
                         char service[BUFFSIZE] = {'\0'};
                         char location[BUFFSIZE] = {'\0'};
 
-                        if(recv(psfd[i].fd,service,2,0) < 0)
+                        // recv(psfd[i].fd,service,BUFFSIZE,0);
+
+                        if(recv(psfd[i].fd,service,BUFFSIZE,0) < 0)
                             error("recv error");
                         cout<<"Tourist place : "<<service<<endl;
                         
-                        if(recv(psfd[i].fd,location,2,0) < 0)
+                        if(recv(psfd[i].fd,location,BUFFSIZE,0) < 0)
                             error("recv error");
-                        cout<<"Pickup location : "<<location<<endl;
+                        cout<<"Pick up location : "<<location<<endl;
                         
                         string service_(service);
 
                         if((agent = get_agent(service)) < 0)
                             error("get_agent error");
-
-                        cout<<"Agent number : "<<agent<<endl;
 
                         msg.type = agent;
                         strcpy(msg.text,location);
@@ -154,7 +156,7 @@ int main() {
                         if((idx = get_location(location)) < 0)
                             error("get_location error");
                         
-                        cout<<"Location idx : "<<idx<<endl;
+                        // cout<<"Location idx : "<<idx<<endl;
                         
                         if((nusfd = accept(usfd[idx],(struct sockaddr*)&taxi_addr,&taxi_len)) < 0)
                             error("UDS accept error");
@@ -164,17 +166,11 @@ int main() {
 
                         cout<<"nsfd sent to taxi ..."<<endl;
 
-                        close(psfd[i].fd);
-
+                        psfd[i].events = POLLOUT;
                     }
                 }
             }
         }
-
-        if(sendto(rsfd,info_places,BUFFSIZE,0,(struct sockaddr*)&my_addr,len) < 0)
-            error("sendto error");
-        if(sendto(rsfd,info_location,BUFFSIZE,0,(struct sockaddr*)&my_addr,len) < 0)
-            error("sendto error");
     }
 
 }

@@ -1,5 +1,9 @@
 #include "./cn.h"
 
+void handler(int signo) {
+    cout<<"Taxi breakdown occured(Agent)"<<endl;
+}
+
 int main(int argc, char* argv[]) {
 
     if(argc != 2){
@@ -7,10 +11,12 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    signal(SIGUSR1,handler);
+
+    string pid = to_string(getpid());
+
     key_t msqkey;
     int msqid, agent_no = atoi(argv[1]);
-
-    cout<<"Agent Number : "<<agent_no<<endl;
 
     if((msqkey = ftok("./msg_queue",89)) < 0)
         error("ftok error");
@@ -20,15 +26,18 @@ int main(int argc, char* argv[]) {
 
     while(1) {
 
-        if(msgrcv(msqid,&msg,sizeof(msg),agent_no,0) < 0)
+        if(msgrcv(msqid,&msg,sizeof(msg),agent_no,0) < 0){
+            if(errno == EINTR)
+                continue;
             error("msgrcv error");
+        }
 
         cout<<"Location details received through message queue ..."<<endl;
 
         cout<<"Pick up location : "<<msg.text<<endl;
                 
         if(fork() == 0) {
-            execl("./X.exe","./X.exe",msg.text,NULL);
+            execl("./X.exe","./X.exe",msg.text,pid.c_str(),NULL);
             cout<<"Location details given to taxi ..."<<endl;
         }
 

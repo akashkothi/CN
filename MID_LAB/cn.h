@@ -40,7 +40,7 @@
 #define R O_RDONLY
 #define W O_WRONLY
 #define RW O_RDWR
-#define PORT 8080
+#define PORT 8081
 #define BACKLOG 10
 #define LOCAL_HOST "127.0.0.1"
 #define ADDRESS "mysocket"
