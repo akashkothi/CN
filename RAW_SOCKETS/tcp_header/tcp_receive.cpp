@@ -7,7 +7,7 @@ int main() {
     struct sockaddr_in client_addr;
     socklen_t len = sizeof(struct sockaddr_in);
 
-    if((rsfd = socket(AF_INET,SOCK_RAW,IPPROTO_TCP)) < 0)
+    if((rsfd = socket(AF_INET, SOCK_RAW, IPPROTO_TCP)) < 0)
         error("socket error");
 
 	if(recvfrom(rsfd,buff,PACKETSIZE,0,(struct sockaddr*)&client_addr,&len) < 0)
