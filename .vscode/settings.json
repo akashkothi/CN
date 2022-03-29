@@ -2,7 +2,9 @@
     "files.associations": {
         "ostream": "cpp",
         "iostream": "cpp",
-        "packet.h": "c"
+        "packet.h": "c",
+        "cmath": "cpp",
+        "complex": "cpp"
     },
     "git.ignoreLimitWarning": true
 }
