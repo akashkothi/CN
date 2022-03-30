@@ -94,7 +94,6 @@ void get_ifr_addr(int fd, struct ifreq *ifr) {
 }
 
 void request_mac(int asfd, const char *if_name, struct ether_arp *req, uint32_t ip_addr) {
-
 	/* arp reuest will be broadcasted to every station in the LAN */
 
 	const unsigned char ether_broadcast_addr[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };

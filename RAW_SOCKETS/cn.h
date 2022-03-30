@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <bits/stdc++.h>
+#include <stdbool.h>
 #include <time.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -13,15 +13,21 @@
 #include <ctype.h>
 #include <signal.h>
 #include <inttypes.h>
+#include <ifaddrs.h>
+#include <getopt.h>
+
+#include <bits/stdc++.h>
 
 #include <net/if.h>
-#include <linux/if_packet.h>
+#include <netpacket/packet.h>
+// #include <linux/if_packet.h>
 #include <net/ethernet.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <arpa/inet.h>
+#include <netinet/if_ether.h>
 #include <linux/if_ether.h>
-#include <linux/if_arp.h>
+// #include <linux/if_arp.h>
 
 #include <asm/byteorder.h>
 #include <sys/wait.h>
@@ -34,6 +40,8 @@
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <sys/un.h>
+
+#include <pcap.h>
 
 #define BUFFSIZE 1024
 #define PACKETSIZE 65536
