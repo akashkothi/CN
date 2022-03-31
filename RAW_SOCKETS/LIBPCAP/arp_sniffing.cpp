@@ -121,7 +121,7 @@ int main(int argc, char* argv[]) {
                 printf("%d.",arpheader->tpa[i]);
             printf("%d\n",arpheader->tpa[3]);
         }
-
+        sleep(2);
     }
 
     return 0;

@@ -229,6 +229,8 @@ int main(int argc, const char* argv[]) {
     printf("Victim MAC : ");
     print_mac(victim_mac);
 
+    // while(1);
+
     bpf_u_int32 netaddr = 0, mask = 0;  /*To Store network 
                             address and netmask */
 
@@ -267,7 +269,7 @@ int main(int argc, const char* argv[]) {
 
     /* Compiles the filter expresion into a BPF filter program */
 
-    if(pcap_compile(descr, &filter, "host 172.30.136.6", 1, mask) < 0){
+    if(pcap_compile(descr, &filter, "host 192.168.137.1", 1, mask) < 0){
         fprintf(stderr, "Error in pcap_compile(): %s\n", pcap_geterr(descr) );
         exit(EXIT_FAILURE);
     }
@@ -293,6 +295,7 @@ int main(int argc, const char* argv[]) {
             fprintf(stderr, "%s\n", errbuf);
             exit(EXIT_FAILURE);
         }
+
     }
 
     

