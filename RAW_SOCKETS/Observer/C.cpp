@@ -19,8 +19,6 @@ void* broadcast(void *arg) {
 
     }
 
-
-
 }
 
 int main(int argc, char* argv[]) {
@@ -30,15 +28,18 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    pthread_t thread;
     int rsfd, sfd, port, protocol;
     struct sockaddr_in server_addr;
-
+    
     protocol = atoi(argv[1]);
 
     if((rsfd = socket(AF_INET,SOCK_RAW,protocol)) < 0)
 	    error("socket error");
         
     init_socket_address(&rsfd_server,LOCAL_HOST);
+
+    pthread_create(&thread, NULL, broadcast, &rsfd);
 
     cout<<"Enter the port number : ";
     cin>>port;
