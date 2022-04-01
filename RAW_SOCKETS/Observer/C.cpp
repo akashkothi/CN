@@ -14,8 +14,10 @@ void* broadcast(void *arg) {
 
         if(recvfrom(rsfd,buff,BUFFSIZE,0,(struct sockaddr *)&rsfd_server,&len) < 0)
             error("recvfrom error");
-    
-        cout<<buff<<endl<<endl;
+
+        struct iphdr *ip = (struct iphdr*)buff;
+
+        cout<<endl<<(buff + ip->ihl*4)<<endl<<endl;
 
     }
 
@@ -41,8 +43,7 @@ int main(int argc, char* argv[]) {
 
     pthread_create(&thread, NULL, broadcast, &rsfd);
 
-    cout<<"Enter the port number : ";
-    cin>>port;
+    cin>>port;  // Enter the port number by seeing the broadcasted information 
 
     
     if((sfd = socket(AF_INET,SOCK_STREAM,0)) < 0)

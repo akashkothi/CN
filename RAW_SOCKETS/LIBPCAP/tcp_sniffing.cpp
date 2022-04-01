@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
     memset(errbuf, 0, PCAP_ERRBUF_SIZE);
 
     if(argc != 2) {
-        printf("USAGE : tcp_sniffing.exe <interface>\n");
+        printf("USAGE : tcp_sniffing.exe <interface> \n");
         exit(EXIT_FAILURE);
     }
 
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 
     /* Compiles the filter expresion into a BPF filter program */
 
-    if(pcap_compile(descr, &filter, "tcp port 443", 1, mask) < 0){
+    if(pcap_compile(descr, &filter, "tcp", 1, mask) < 0){
         fprintf(stderr, "Error in pcap_compile(): %s\n", pcap_geterr(descr) );
         exit(EXIT_FAILURE);
     }

@@ -1,108 +1,96 @@
 #include "../cn.h"
 
-pollfd psfd[100];
-int size = 0, rsfd, type;
-struct sockaddr_in service[100], client_addr;
-
-string info = "Available port : ";
-
-void* msgq_observer(void *arg) {
-
-    int msqid = *(int *)arg;
-
-    while(1) { 
-
-        int port, opt = 1;
-        struct sockaddr_in client_addr;
-        socklen_t len = sizeof(struct sockaddr_in);
-        
-        if(msgrcv(msqid,&msg,sizeof(msg),type,0) < 0) {
-            if(errno == EINTR)
-                continue;
-            error("msgrcv error");
-        }
-
-        port = atoi(msg.text);
-
-        info = info + " " + to_string(port);
-
-        init_socket_address(&service[size],LOCAL_HOST,port);
-
-        if((psfd[size].fd = socket(AF_INET,SOCK_STREAM,0)) < 0)
-            error("socket error");
-        
-        psfd[size].events = POLLIN;
-    
-        setsockopt(psfd[size].fd,SOL_SOCKET,SO_REUSEADDR|SO_REUSEPORT,&opt,sizeof(socklen_t));
-
-        if(bind(psfd[size].fd,(struct sockaddr *)&service[size],sizeof(struct sockaddr_in)) < 0)
-            error("bind error");
-
-        if(listen(psfd[size].fd,BACKLOG) < 0) 
-            error("listen error");
-        
-        size++;
-
-        if(sendto(rsfd,msg.text,BUFFSIZE,0,(struct sockaddr*)&client_addr,len) < 0)
-            error("sendto error");
-        
-        cout<<"Port Info broadcasted ...\n"<<endl;
-
-    }
-
-}
-
 int main(int argc, char* argv[]) {
     
     if(argc != 3) {
-        cout<<"USAGE : CS.exe <1 or 2>  <protocol>"<<endl;
+        cout<<"USAGE : CS.exe <0 or 1>  <protocol>"<<endl;
         exit(EXIT_FAILURE);
     }
 
-    key_t msqkey;
-    int msqid, protocol;
+    unordered_map<int,int> sfd_pid;
+    string info = "Available Service Ports :";
 
-    protocol = atoi(argv[2]);
+    pthread_t thread;
+    
+    int rsfd;
+    int protocol = atoi(argv[2]);
+
+    struct sockaddr_in rsfd_client_addr;
+
+    int size = 0; 
+    pollfd psfd[100];
+
 
     if((rsfd = socket(AF_INET,SOCK_RAW,protocol)) < 0)
         error("socket error");
     
-    init_socket_address(&client_addr,LOCAL_HOST);
-
-    if((msqkey = ftok("./msg_queue",89)) < 0)
-        error("ftok error");
+    init_socket_address(&rsfd_client_addr,LOCAL_HOST);
     
-    if((msqid = msgget(msqkey,RWX|IPC_CREAT)) < 0)
-        error("msgget error");
-    
-    pthread_t thread;
+    pollfd pusfd[1];
+    struct sockaddr_un uds_addr;
 
-    pthread_create(&thread,NULL,msgq_observer,&msqid);
+    pusfd[0].events = POLLIN;
+    pusfd[0].fd = uds_socket_bind(path[atoi(argv[1])], uds_addr);
 
     while(1) {
 
-        if(poll(psfd,size,500) < 0) {
+        if(poll(pusfd,1,500) < 0) {
+            if(errno == EINTR)
+                continue;
+            error("poll error");            
+        }
+        else if(pusfd[0].revents == POLLIN) {
+            
+            int nusfd, sfd;
+            struct sockaddr_un uds_client;
+            socklen_t uds_len = sizeof(struct sockaddr_un);
+
+            if((nusfd = accept(pusfd[0].fd,(struct sockaddr*)&uds_client,&uds_len)) < 0)
+                error("uds accept error");
+            
+            char pid[BUFFSIZE] = {'\0'};
+
+            if((sfd = recv_fd(nusfd,pid)) < 0)
+                error("recv_fd error");
+
+            struct sockaddr_in client_addr;
+            socklen_t client_len = sizeof(struct sockaddr_in);
+
+            if(getsockname(sfd,(struct sockaddr*)&client_addr,&client_len) < 0)
+                error("getsockname error");
+            
+            cout<<"Service Port Received : "<<ntohs(client_addr.sin_port)<<endl;
+
+            info = info + " " + to_string(ntohs(client_addr.sin_port));
+
+            psfd[size].fd = sfd;
+            sfd_pid[psfd[size].fd] = atoi(pid);
+            psfd[size++].events = POLLIN;
+
+            if(sendto(rsfd,info.c_str(),info.size(),0,(struct sockaddr*)&client_addr,sizeof(struct sockaddr_un)) < 0)
+                error("sendto error");
+        
+            cout<<"Port Info Broadcasted ...\n"<<endl;
+    
+        }
+
+        int cnt;
+
+        if((cnt = poll(psfd,size,500)) < 0) {
             if(errno == EINTR)
                 continue;
             error("poll error");
         }
-        else {
-
+        else if(cnt > 0) {
             for(int i = 0; i < size; i++) {
-
-                if(psfd[i].revents == POLLIN) {
-                    
-                    // if(sendto(rsfd,info.c_str(),info.size(),0,))
-
+                if(psfd[i].revents == POLLIN){
+                    kill(sfd_pid[psfd[i].fd], SIGUSR1);
+                    cout<<"Signal sent ..."<<endl;
                 }
-
             }
-
-
+            sleep(1);
         }
 
     }
-
-
 
 }

@@ -294,11 +294,39 @@ int uds_socket(int type, const char* name,struct sockaddr_un &userv_addr ) {
     int usfd;
     
     if((usfd = socket(AF_UNIX, type, 0)) < 0)
-        error("socket error");
+        error("uds socket error");
     
     bzero(&userv_addr,sizeof(userv_addr));
     userv_addr.sun_family = AF_UNIX;
     strcpy(userv_addr.sun_path, name);
+
+    return usfd;
+}
+
+int uds_socket_bind(const char* name, struct sockaddr_un &addr) {
+
+    unlink(name);
+
+    int usfd = uds_socket(SOCK_STREAM, name, addr); 
+
+    if(bind(usfd,(struct sockaddr*)&addr,sizeof(struct sockaddr_un)) < 0)
+        error("uds bind error");
+        
+    if(listen(usfd,BACKLOG) < 0)
+        error("uds listen error");
+    
+    return usfd;
+}
+
+int uds_socket(const char* name, struct sockaddr_un &addr) {
+
+    int usfd;
+    if((usfd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
+        error("uds socket error");
+    
+    bzero(&addr,sizeof(addr));
+    addr.sun_family = AF_UNIX;
+    strcpy(addr.sun_path, name);
 
     return usfd;
 }
