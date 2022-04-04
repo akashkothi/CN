@@ -18,10 +18,10 @@ int main(int argc, const char* argv[]) {
 
     while(1) {
         
-        char buff[BUFFSIZE] = {'\0'};
+        char buff[BUFFSIZE] = {'\0'};       
 
-        if(send(sfd,buff,BUFFSIZE,0) < 0)
-            error("send error");
+        if(recv(sfd,buff,BUFFSIZE,0) < 0)
+            error("recv error");
 
         cout<<"message received ..."<<endl;
 
