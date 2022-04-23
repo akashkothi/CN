@@ -27,10 +27,12 @@
 #include <arpa/inet.h>
 #include <netinet/if_ether.h>
 #include <linux/if_ether.h>
+#include <linux/kcmp.h>
 // #include <linux/if_arp.h>
 
 #include <asm/byteorder.h>
 #include <sys/wait.h>
+#include <sys/syscall.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -39,7 +41,10 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/select.h>
+#include <sys/param.h>
+#include <sys/mount.h>
 #include <sys/un.h>
+
 
 #include <pcap.h>
 
@@ -599,4 +604,25 @@ void set_arp_header(struct ether_arp *arp_hdr, int type,const unsigned char *src
 	memcpy(arp_hdr->arp_tpa, &dst_ip_, sizeof(arp_hdr->arp_tpa));
 
     return;
+}
+
+pid_t getpid_by_port(unsigned short port) {
+
+    int fd, pid;
+    char buff[BUFFSIZE] = {'\0'};
+    string cmd = "netstat -nlp | grep " + to_string(port) + " | awk '{print $NF}' ";
+
+    if((fd = fileno(popen(cmd.c_str(), "r"))) < 0)
+        error("getpid_by_port : popen error");
+
+    if(read(fd, buff,BUFFSIZE) < 0)
+        error("getpid_by_port : read error");
+
+    if(close(fd) < 0)
+        error("getpid_by_port : close error");
+
+    pid = atoi(strtok(buff, "/"));
+
+    return (pid_t)pid;
+
 }
