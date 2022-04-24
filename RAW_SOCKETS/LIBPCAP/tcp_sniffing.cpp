@@ -1,8 +1,5 @@
 #include "../cn.h"
 
-
-#define MAXBYTES2CAPTURE 2048
-
 int main(int argc, char* argv[]) {
 
     int i = 0;
@@ -49,7 +46,7 @@ int main(int argc, char* argv[]) {
 
     /* Compiles the filter expresion into a BPF filter program */
 
-    if(pcap_compile(descr, &filter, "tcp", 1, mask) < 0){
+    if(pcap_compile(descr, &filter, "tcp port 8080", 1, mask) < 0){
         fprintf(stderr, "Error in pcap_compile(): %s\n", pcap_geterr(descr) );
         exit(EXIT_FAILURE);
     }
@@ -70,9 +67,13 @@ int main(int argc, char* argv[]) {
 
         struct iphdr *ip = (struct iphdr*)(packet + 14);
 
+        print_ip_header(ip);
+
         tcpheader = (struct tcphdr *)(packet + 14 + (ip->ihl)*4); /* point to the arp header */ 
 
         print_tcp_header(tcpheader);
+
+        cout<<"Data : "<<(packet + 14 + (ip->ihl)*4 + tcpheader->doff*4)<<endl;
 
         // sleep(2);
 

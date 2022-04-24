@@ -87,16 +87,9 @@ void init_socket_address(struct sockaddr_in* socket_addr, const char* ip_addr) {
     socket_addr->sin_family = AF_INET;
     if(inet_pton(AF_INET,ip_addr,&socket_addr->sin_addr) < 1)
         error("inet_pton error");
-    // printf("\nInitialized socket address ...\n");
 }
 
-void init_socket_address(struct sockaddr_in* socket_addr, const char* ip_addr, int port) {
-    socket_addr->sin_family = AF_INET;
-    socket_addr->sin_port = htons(port);
-    if(inet_pton(AF_INET,ip_addr,&socket_addr->sin_addr) < 1)
-        error("inet_pton error");
-    // printf("\nInitialized socket address ...\n");
-}
+
 
 pid_t getpid_by_name(string name) {
     
@@ -112,7 +105,82 @@ pid_t getpid_by_name(string name) {
     return pid;
 }
 
-// ---------------------------- UDS Socket ----------------------------------- 
+                    /* ---------------------------- BSD Sockets ----------------------------------- */
+
+void init_socket_address(struct sockaddr_in* socket_addr, const char* ip_addr, int port) {
+    socket_addr->sin_family = AF_INET;
+    socket_addr->sin_port = htons(port);
+    if(inet_pton(AF_INET,ip_addr,&socket_addr->sin_addr) < 1)
+        error("init_socket_address(inet_pton) error");
+}
+
+int bsd_socket(int type, int port,const char* ip,struct sockaddr_in *addr) {
+
+    int sfd;
+
+    init_socket_address(addr,ip,port);
+
+    if((sfd = socket(AF_INET,type,0)) < 0)
+        error("tcp_socket(socket) error");
+
+    return sfd;
+}
+
+int bsd_socket_bind(int type,int port,const char* ip,struct sockaddr_in *addr) {
+
+    int sfd = bsd_socket(type,port,ip,addr);
+    
+    if(bind(sfd,(struct sockaddr*)addr, sizeof(struct sockaddr_in)) < 0)
+            error("tcp_socket_bind(bind) error");
+    
+    if(type == SOCK_STREAM) {
+        if(listen(sfd,BACKLOG) < 0)
+            error("tcp_socket_bind(listen) error");
+    }
+
+    return sfd;
+}
+
+
+
+                    /* ---------------------------- END ----------------------------------- */
+
+
+
+
+
+
+                /* ---------------------------- UDS Socket ----------------------------------- */ 
+
+int uds_socket(const char* name, struct sockaddr_un *addr) {
+
+    int usfd;
+    if((usfd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
+        error("uds socket error");
+    
+    bzero(&addr,sizeof(addr));
+    addr->sun_family = AF_UNIX;
+    strcpy(addr->sun_path, name);
+
+    return usfd;
+}
+
+int uds_socket_bind(const char* path, struct sockaddr_un *addr) {
+
+    unlink(path);
+
+    int usfd = uds_socket(path, addr); 
+
+    if(bind(usfd,(struct sockaddr*)addr,sizeof(struct sockaddr_un)) < 0)
+        error("uds bind error");
+        
+    if(listen(usfd,BACKLOG) < 0)
+        error("uds listen error");
+    
+    return usfd;
+}
+
+
 
 int send_fd(int socket, int fd_to_send) {
     
@@ -293,49 +361,11 @@ int recv_fd(int socket, char* msg) {
     return -1; 
 }
 
-int uds_socket(int type, const char* name,struct sockaddr_un &userv_addr ) {
+                        /* ---------------------------- END ----------------------------------- */
 
-    int usfd;
-    
-    if((usfd = socket(AF_UNIX, type, 0)) < 0)
-        error("uds socket error");
-    
-    bzero(&userv_addr,sizeof(userv_addr));
-    userv_addr.sun_family = AF_UNIX;
-    strcpy(userv_addr.sun_path, name);
 
-    return usfd;
-}
 
-int uds_socket_bind(const char* name, struct sockaddr_un &addr) {
-
-    unlink(name);
-
-    int usfd = uds_socket(SOCK_STREAM, name, addr); 
-
-    if(bind(usfd,(struct sockaddr*)&addr,sizeof(struct sockaddr_un)) < 0)
-        error("uds bind error");
-        
-    if(listen(usfd,BACKLOG) < 0)
-        error("uds listen error");
-    
-    return usfd;
-}
-
-int uds_socket(const char* name, struct sockaddr_un &addr) {
-
-    int usfd;
-    if((usfd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
-        error("uds socket error");
-    
-    bzero(&addr,sizeof(addr));
-    addr.sun_family = AF_UNIX;
-    strcpy(addr.sun_path, name);
-
-    return usfd;
-}
-
-// -------------------------------------------  Headers ---------------------------------------
+                /* -------------------------------------------  Headers --------------------------------------- */
 
 void print_mac(unsigned char *mac) {
     printf("%02x:%02x:%02x:%02x:%02x:%02x\n",
@@ -482,6 +512,9 @@ void  get_target_mac(const char *interface, const char* target_ip,unsigned char 
 
 }
 
+                    /* --------------------------- Ethernet Header ------------------------ */
+
+
 
 void set_ether_header(struct ether_header *ether_hdr,  u_int16_t type, const unsigned char *src_mac, const unsigned char *dst_mac) {
     
@@ -492,9 +525,15 @@ void set_ether_header(struct ether_header *ether_hdr,  u_int16_t type, const uns
     return;
 }
 
+                        /* --------------------------- END ------------------------ */
 
 
-// --------------------------- ARP Header ------------------------
+
+
+
+
+                    /* ------------------------------------------- ARP Header ------------------------------------- */
+
 typedef struct arp_header {
 
     u_int16_t htype;        /* Hardware Type           */
@@ -529,7 +568,7 @@ void set_arp_header(struct ether_arp *arp_hdr, int type,const unsigned char *src
     return;
 }
 
-/* --------------------------------- ARP Header ------------------------------- */
+            /* --------------------------------- END ------------------------------- */
 
 
 unsigned short CheckSum(unsigned short *buf, int numwords) {
@@ -576,7 +615,10 @@ unsigned short csum(unsigned short *ptr,int nbytes)  {
 
 
 
-/* ---------------------------------- IP Header -------------------------------- */
+                    /* ---------------------------------- IP Header -------------------------------- */
+
+
+
 struct iphdr {
 #if defined(__LITTLE_ENDIAN_BITFIELD)
 	__u8	ihl:4,
@@ -636,7 +678,6 @@ void set_ip_hdr(struct iphdr* ip_header,int protocol,const char* src_ip,const ch
     ip_header->check = csum((unsigned short*)ip_header,sizeof(struct iphdr));
 
     return;
-
 }
 
 
@@ -655,7 +696,7 @@ void print_ip_header(struct iphdr* ip) {
     return;
 }
 
-/* ----------------------------------- IP Header --------------------------------------- */
+                /* ----------------------------------- END --------------------------------------- */
 
 
 
@@ -668,7 +709,7 @@ struct pseudo_header {
 };
 
 
-/* -----------------------------------  TCP Header -------------------------------------- */
+                /* -----------------------------------  TCP Header -------------------------------------- */
 
 struct tcphdr {
         __be16        source;
@@ -742,7 +783,6 @@ void set_tcp_header(struct tcphdr* tcp_header,unsigned short src_port,const char
 	tcp_header->check = csum((unsigned short*) pseudogram , psize);
 
     return;
-
 }
 
 
@@ -767,7 +807,7 @@ void print_tcp_header(struct tcphdr *tcph) {
     printf("\n");    
 }
 
-/* -------------------------------------- TCP Header --------------------------------------- */
+                /* -------------------------------------- END --------------------------------------- */
 
 
 
