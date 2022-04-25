@@ -831,3 +831,79 @@ pid_t getpid_by_port(unsigned short port) {
     return (pid_t)pid;
 
 }
+
+/* --------------------------------- END LAB ------------------------------------- */
+
+struct pseudo_tcphdr {
+    u_int16_t source_port;
+    u_int16_t destination_port;
+    u_int8_t connection_request_flag;
+    u_int8_t connection_accepted;
+    u_int8_t final_acknowledgement;
+    u_int8_t data_flag;
+    u_int16_t sender_sequence_number;
+    u_int16_t receiver_sequence_number;
+} ;
+
+void set_pseudo_tcp_hdr(struct pseudo_tcphdr *ptcp_header,u_int16_t src_port, u_int16_t dst_port, u_int8_t crf, u_int8_t caf,u_int8_t faf,u_int8_t df){
+
+    ptcp_header->source_port = htons(src_port);
+    ptcp_header->destination_port = htons(dst_port);
+    ptcp_header->connection_request_flag = crf;
+    ptcp_header->connection_accepted = caf;
+    ptcp_header->final_acknowledgement = faf;
+    ptcp_header->data_flag = df;
+
+    return;
+
+}
+
+void print_pseudo_tcphdr(struct pseudo_tcphdr *ptcp_header) {
+
+    cout<<"\n\t---------------------PSEUDO TCP HEADER --------------------\n"<<endl;     
+    printf("\t\tSource Port                 : %u\n",ntohs(ptcp_header->source_port));
+    printf("\t\tDestination Port            : %u\n",ntohs(ptcp_header->destination_port));
+    printf("\t\tConnection Request Flag     : %u\n",ptcp_header->connection_request_flag);
+    printf("\t\t Connection Accepted        : %u\n",ptcp_header->connection_accepted);
+    printf("\t\tFinal Acknowledgement       : %d\n",ptcp_header->final_acknowledgement);
+    printf("\t\tData Flag                   : %d\n",ptcp_header->data_flag);
+    printf("\t\tSender Sequence Number      : %d\n",ptcp_header->sender_sequence_number);
+    printf("\t\tReceiver Sequence Number    : %d\n",ptcp_header->receiver_sequence_number);
+    printf("\n");  
+}
+
+
+int custom_socket(const char* ip_addr,int port){
+
+    string ip(ip_addr);
+    string path = ip + ":" + to_string(port);
+
+    key_t key;
+    int msqid;
+
+    if((key = ftok("msg_queue",50)) < 0)
+        error("custom_socket(ftok error)");
+    
+    if((msqid = msgget(key,RWX|IPC_CREAT)) < 0)
+        error("custom_socket(msgget error)");
+    
+    return msqid;
+
+}
+
+int custom_send(int fd, const char* buf) {
+    struct mymesg mesg;
+    mesg.type = 0;
+    strcpy(mesg.text,buf);
+    if(msgsnd(fd,&mesg,sizeof(mesg), 0) < 0)
+        return -1;
+    else return 0;
+}
+
+int custom_receive(int fd, char* buf) {
+    struct mymesg mesg;
+    if(msgrcv(fd,&mesg,sizeof(mesg),0,0) < 0)
+        error("msgrcv error");
+    strcpy(buf,mesg.text);
+    return 0;
+}
