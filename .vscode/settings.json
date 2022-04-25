@@ -4,7 +4,9 @@
         "iostream": "cpp",
         "packet.h": "c",
         "cmath": "cpp",
-        "complex": "cpp"
+        "complex": "cpp",
+        "typeindex": "cpp",
+        "typeinfo": "cpp"
     },
     "git.ignoreLimitWarning": true
 }

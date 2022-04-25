@@ -845,7 +845,7 @@ struct pseudo_tcphdr {
     u_int16_t receiver_sequence_number;
 } ;
 
-void set_pseudo_tcp_hdr(struct pseudo_tcphdr *ptcp_header,u_int16_t src_port, u_int16_t dst_port, u_int8_t crf, u_int8_t caf,u_int8_t faf,u_int8_t df){
+void set_pseudo_tcp_hdr(struct pseudo_tcphdr *ptcp_header,u_int16_t src_port, u_int16_t dst_port, u_int8_t crf, u_int8_t caf,u_int8_t faf,u_int8_t df,u_int16_t ssn, u_int16_t rsn){
 
     ptcp_header->source_port = htons(src_port);
     ptcp_header->destination_port = htons(dst_port);
@@ -853,6 +853,8 @@ void set_pseudo_tcp_hdr(struct pseudo_tcphdr *ptcp_header,u_int16_t src_port, u_
     ptcp_header->connection_accepted = caf;
     ptcp_header->final_acknowledgement = faf;
     ptcp_header->data_flag = df;
+    ptcp_header->sender_sequence_number = ssn;
+    ptcp_header->receiver_sequence_number = rsn;
 
     return;
 
@@ -873,7 +875,7 @@ void print_pseudo_tcphdr(struct pseudo_tcphdr *ptcp_header) {
 }
 
 
-int custom_socket(const char* ip_addr,int port){
+int custom_socket(const char* ip_addr,int port, const char* name,int id){
 
     string ip(ip_addr);
     string path = ip + ":" + to_string(port);
@@ -881,29 +883,39 @@ int custom_socket(const char* ip_addr,int port){
     key_t key;
     int msqid;
 
-    if((key = ftok("msg_queue",50)) < 0)
+    if((key = ftok(name,id)) < 0)
         error("custom_socket(ftok error)");
     
     if((msqid = msgget(key,RWX|IPC_CREAT)) < 0)
         error("custom_socket(msgget error)");
     
-    return msqid;
+    struct mymesg mesg;
+    
+    mesg.type = 10;
+    strcpy(mesg.text,path.c_str());
 
+    if(msgsnd(msqid,&mesg,sizeof(mesg),0) < 0)
+        error("msgsnd error");
+    
+    return msqid;
 }
 
 int custom_send(int fd, const char* buf) {
     struct mymesg mesg;
-    mesg.type = 0;
+    mesg.type = 1;
     strcpy(mesg.text,buf);
-    if(msgsnd(fd,&mesg,sizeof(mesg), 0) < 0)
-        return -1;
-    else return 0;
+    if(msgsnd(fd,&mesg,sizeof(mesg),0) < 0)
+        error("msgsnd error");
+    cout<<"message sent ..."<<endl;
+    return 0;
 }
 
 int custom_receive(int fd, char* buf) {
     struct mymesg mesg;
-    if(msgrcv(fd,&mesg,sizeof(mesg),0,0) < 0)
+    if(msgrcv(fd,&mesg,sizeof(mesg),1,0) < 0)
         error("msgrcv error");
     strcpy(buf,mesg.text);
+    cout<<buf<<endl;
+    cout<<"message received ..."<<endl;
     return 0;
 }

@@ -64,13 +64,13 @@ int main(int argc, char* argv[]) {
         }
 
         struct iphdr *ip = (struct iphdr*)(packet + 14);
+        struct pseudo_tcphdr *ptcp_header = (struct pseudo_tcphdr *)(14 + packet + sizeof(struct iphdr));
 
-        print_ip_header(ip);
-
-        struct pseudo_tcphdr *ptcp_header = (struct pseudo_tcphdr *)(14 + packet + sizeof(struct iphdr)); /* point to the arp header */ 
-
-        // sleep(2);
-
+        if(ip->protocol == 8) {
+            print_ip_header(ip); 
+            print_pseudo_tcphdr(ptcp_header);
+            cout<<"Data : "<<(14 + packet + sizeof(struct iphdr) + sizeof(struct pseudo_tcphdr))<<endl;
+        }
     }
 
     return 0;
