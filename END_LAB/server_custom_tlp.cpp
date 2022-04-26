@@ -133,7 +133,7 @@ int main() {
 
         while(1) {
             
-            cout<<"Waiting for message ..."<<endl;
+            // cout<<"Waiting for message ..."<<endl;
 
             // if(recv(rsfd,packet,BUFFSIZE,0) < 0)
             //     error("recv error");
@@ -147,14 +147,14 @@ int main() {
             mesg.type = 1;
             strcpy(mesg.text,(packet + sizeof(struct iphdr) + sizeof(struct pseudo_tcphdr)));
 
-            cout<<mesg.text<<endl;
+            // cout<<mesg.text<<endl;
 
             if(msgsnd(msqid,&mesg,sizeof(mesg),0) < 0)
                 error("msgsnd error");
             
             int datalen = strlen(mesg.text);
             
-            cout<<"message sent to server"<<endl;
+            // cout<<"message sent to server"<<endl;
             
             memset(msg.text,0,BUFFSIZE);
 
@@ -163,13 +163,15 @@ int main() {
             if(msgrcv(msqid,&mesg,sizeof(mesg),1,0) < 0)
                 error("msgrcv error");
             
+            datalen = strlen(mesg.text);
+            
             memset(packet,0,BUFFSIZE);
 
             ip_header = (struct iphdr*)packet;
             set_ip_hdr(ip_header,8,LOCAL_HOST,inet_ntoa(client_addr.sin_addr));
 
             ptcp_hdr = (struct pseudo_tcphdr*)(packet + sizeof(struct iphdr));
-            set_pseudo_tcp_hdr(ptcp_hdr,port,dstport,0,0,0,1,datalen,0);
+            set_pseudo_tcp_hdr(ptcp_hdr,port,8081,0,0,0,1,datalen,0);
             
             strcpy((packet + sizeof(struct iphdr) + sizeof(struct pseudo_tcphdr)),mesg.text);
 
